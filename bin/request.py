@@ -1,6 +1,7 @@
 import os
 import sys
 import typing
+from json import JSONDecodeError
 
 import requests
 
@@ -17,7 +18,12 @@ class RequestCommand(GeneratingCommand):
 
     def generate(self):
         response = requests.request(method=self.method, url=self.url)
-        data = response.json()
+        try:
+            data = response.json()
+        except JSONDecodeError:
+            yield self.to_event(response.content)
+            return
+
         if isinstance(data, typing.Sequence):
             for item in data:
                 yield self.to_event(item)
