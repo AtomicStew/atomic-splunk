@@ -1,7 +1,7 @@
+import json
 import os
 import sys
 import typing
-from json import JSONDecodeError
 
 import requests
 
@@ -15,14 +15,15 @@ from splunklib.searchcommands import dispatch, GeneratingCommand, Configuration,
 class RequestCommand(GeneratingCommand):
     url = Option(require=True)
     method = Option(default='GET', validate=validators.Set('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'))
+    body = Option(default=None)
 
     def generate(self):
-        response = requests.request(method=self.method, url=self.url)
+        response = requests.request(method=self.method, url=self.url, json=self.body and json.loads(self.body))
         # Raise an error in case of bad request
         response.raise_for_status()
         try:
             data = response.json()
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             yield self.to_event(response.content)
             return
 
