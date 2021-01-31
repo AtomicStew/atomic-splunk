@@ -18,6 +18,8 @@ class RequestCommand(GeneratingCommand):
 
     def generate(self):
         response = requests.request(method=self.method, url=self.url)
+        # Raise an error in case of bad request
+        response.raise_for_status()
         try:
             data = response.json()
         except JSONDecodeError:
