@@ -16,9 +16,15 @@ class RequestCommand(GeneratingCommand):
     url = Option(require=True)
     method = Option(default='GET', validate=validators.Set('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'))
     body = Option(default=None)
+    headers = Option(default=None)
 
     def generate(self):
-        response = requests.request(method=self.method, url=self.url, json=self.body and json.loads(self.body))
+        response = requests.request(
+            method=self.method,
+            url=self.url,
+            json=self.body and json.loads(self.body),
+            headers=self.headers and json.loads(self.headers),
+        )
         # Raise an error in case of bad request
         response.raise_for_status()
         try:
